@@ -1,6 +1,5 @@
 import io.github.snpefk.machine.Transition
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import player.CdDetected
@@ -54,24 +53,23 @@ class MainTest {
 		player.start()
 		assertEquals(player.currentState(), Empty)
 
-		player.process(CdDetected(DISK_NAME, DiskType.BLU_RAY)) // move to Stopped
-		player.process(Play) // move to Playing
+		player.process(CdDetected(DISK_NAME, DiskType.BLU_RAY))
+		player.process(Play)
 
 		val count = (player.currentState() as Playing).playCount
-		assertEquals("First check failed", 1u, count)
+		assertEquals("Assertion with expected 1 count failed", 1u, count)
 
-		player.process(OpenClose) // открываем
-		assertTrue("${player.currentState()}", player.currentState() is Open)
+		player.process(OpenClose)
+		assertTrue("Current state is ${player.currentState()}", player.currentState() is Open)
 
-		player.process(OpenClose) // закрываем
-		assertTrue("${player.currentState()}", player.currentState() is Empty)
+		player.process(OpenClose)
+		assertTrue("Current state is ${player.currentState()}", player.currentState() is Empty)
 
 		player.process(CdDetected("Duck Tales", DiskType.BLU_RAY))
 		player.process(Play)
 
-		val currentState = player.currentState()
-		val playing2 = (currentState as Playing).playCount
-		assertEquals("Second check failed", 2u, playing2)
+		val count2 = (player.currentState() as Playing).playCount
+		assertEquals("Assertion with expected 1 count failed", 2u, count2)
 	}
 
 	private fun Transition.isValidTransaction(): Boolean =
