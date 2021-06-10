@@ -1,5 +1,8 @@
 plugins {
 	id 'org.jetbrains.kotlin.jvm' version '1.5.0'
+	id 'maven-publish'
+	id 'maven'
+	id 'signing'
 }
 
 group 'io.github.snpefk'
@@ -9,6 +12,78 @@ repositories {
 	mavenCentral()
 	jcenter()
 	google()
+}
+
+task javadocJar(type: Jar) {
+	classifier = 'javadoc'
+	from javadoc
+}
+
+task sourcesJar(type: Jar) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+artifacts {
+	archives javadocJar, sourcesJar
+}
+
+signing {
+	sign configurations.archives
+}
+
+publishing {
+	publications {
+		maven(MavenPublication) {
+			from components.kotlin
+		}
+	}
+}
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+			repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
+
+			snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
+
+			pom.project {
+				name 'Turnstile'
+				packaging 'jar'
+
+				description 'Kotlin\'s implementation of state machine inspired by Boost::Meta State Machine. '
+				url 'https://github.com/snpefk/turnstile'
+
+				scm {
+					url 'https://github.com/snpefk/turnstile'
+					connection 'scm:https://github.com/snpefk/turnstile.git'
+					developerConnection 'scm:git://github.com/snpefk/turnstile.git'
+				}
+
+				licenses {
+					license {
+						name 'MIT License'
+						url 'https://opensource.org/licenses/MIT'
+					}
+				}
+
+				developers {
+					developer {
+						id 'Snpefk'
+						name 'Snpefk'
+						email 'snpefk@gmail.com'
+					}
+				}
+
+			}
+		}
+	}
 }
 
 dependencies {
